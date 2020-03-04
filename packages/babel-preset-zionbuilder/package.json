@@ -9,5 +9,13 @@
     "@babel/plugin-transform-runtime": "^7.8.3",
     "@babel/preset-env": "^7.8.6"
   },
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "MIT",
+  "author": "Balasa Sorin Stefan",
+  "bugs": {
+    "url": "https://github.com/zionbuilder/zionbuilder-cli/issues"
+  },
   "gitHead": "e766cddeae4a44f7caf365ef2b7ffc1360757a46"
 }

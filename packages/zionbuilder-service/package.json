@@ -2,9 +2,7 @@
   "name": "@zionbuilder/zionbuilder-service",
   "version": "0.1.4",
   "description": "> TODO: description",
-  "author": "Balasa Sorin Stefan <stefan@hogash.com>",
   "homepage": "",
-  "license": "ISC",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: run tests from root\" && exit 1"
@@ -56,5 +54,14 @@
     "webpack-chain": "^6.4.0",
     "webpack-dev-server": "^3.10.3",
     "webpack-merge": "^4.2.2"
-  }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "MIT",
+  "author": "Balasa Sorin Stefan",
+  "bugs": {
+    "url": "https://github.com/zionbuilder/zionbuilder-cli/issues"
+  },
+  "gitHead": "692654c41f45623e695dc3f1f96bd23dadbb9c2d"
 }
