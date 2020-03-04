@@ -8,5 +8,6 @@
     "@babel/plugin-syntax-dynamic-import": "^7.8.3",
     "@babel/plugin-transform-runtime": "^7.8.3",
     "@babel/preset-env": "^7.8.6"
-  }
+  },
+  "gitHead": "e766cddeae4a44f7caf365ef2b7ffc1360757a46"
 }
