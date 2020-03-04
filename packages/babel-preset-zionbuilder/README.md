@@ -5,7 +5,5 @@
 ## Usage
 
 ```
-const babelPresetZionExtension = require('babel-preset-zion-extension');
-
-// TODO: DEMONSTRATE API
+add '@zionbuilder/babel-preset-zionbuilder' to presets in babel config file
 ```
