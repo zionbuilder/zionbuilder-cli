@@ -3,9 +3,8 @@
 > TODO: description
 
 ## Usage
-
+add the following task in package.json
 ```
-const zionbuilderCli = require('zionbuilder-cli');
-
-// TODO: DEMONSTRATE API
+    "serve": "zionbuilder-service serve",
+    "build": "zionbuilder-service build"
 ```
