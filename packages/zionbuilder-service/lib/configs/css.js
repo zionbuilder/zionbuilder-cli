@@ -11,9 +11,9 @@ const findExisting = (context, files) => {
 
 module.exports = (webpackConfig, service) => {
     const rootOptions = service.options.getOptions()
-    const getAssetPath = require('../util/getAssetPath')
     const shadowMode = !!process.env.ZIONBUILDER_CLI_CSS_SHADOW_MODE
     const isProd = process.env.NODE_ENV === 'production'
+    const webpackEntries = service.getEntries()
 
     let sassLoaderVersion
     try {
@@ -49,25 +49,12 @@ module.exports = (webpackConfig, service) => {
     }
 
     const shouldExtract = extract !== false && !shadowMode
-    const filename = getAssetPath(
-      rootOptions,
-      `css/[name]${rootOptions.filenameHashing ? '.[contenthash:8]' : ''}.css`
-    )
     const extractOptions = Object.assign({
-      filename,
-      chunkFilename: filename
+      moduleFilename: ({ name }) => {
+        const entry = webpackEntries[name]
+        return entry.cssDestination
+      }
     }, extract && typeof extract === 'object' ? extract : {})
-
-    // use relative publicPath in extracted CSS based on extract location
-    const cssPublicPath = process.env.VUE_CLI_BUILD_TARGET === 'lib'
-      // in lib mode, CSS is extracted to dist root.
-      ? './'
-      : '../'.repeat(
-        extractOptions.filename
-            .replace(/^\.[\/\\]/, '')
-            .split(/[\/\\]/g)
-            .length - 1
-      )
 
     // check if the project has a valid postcss config
     // if it doesn't, don't use postcss-loader for direct style imports
@@ -129,7 +116,9 @@ module.exports = (webpackConfig, service) => {
             .loader(require('mini-css-extract-plugin').loader)
             .options({
               hmr: !isProd,
-              publicPath: cssPublicPath
+              publicPath: (resourcePath, context) => {
+                return path.relative(path.dirname(resourcePath), context) + '/';
+              }
             })
         } else {
           rule

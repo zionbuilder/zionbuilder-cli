@@ -19,6 +19,9 @@ function watchTask () {
 	// webpack
 	const port = service.availablePort
 	service.chainWebpack(webpackConfig => {
+		
+		webpackConfig.mode('development')
+
 		webpackConfig
 			.devtool('cheap-module-eval-source-map')
 

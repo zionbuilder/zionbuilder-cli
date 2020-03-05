@@ -16,7 +16,8 @@ module.exports = class Service {
 		this.webpackChainFns = []
 
 		this.availablePort = findFreePort()
-
+		this.entries = {}
+		
 		// Folder containing the target package.json for plugins
 		this.pkgContext = context
 		// package.json containing the plugins
@@ -50,6 +51,7 @@ module.exports = class Service {
 
 	resolveConfig () {
 		let fileConfig
+
 		const configPath = (
 			path.resolve(this.context, 'zionbuilder.config.js')
 		)
@@ -77,8 +79,17 @@ module.exports = class Service {
 		return fileConfig
 	}
 
-	run(service, args) {
-		const command = this.commands[service]
+	run(name, args, rawArgv) {
+		const command = this.commands[name]
+		
+		// Initialize webpack entries
+		this.setEntries()
+
+		// Set the proper mode
+		process.env.NODE_ENV = name === 'build' ? 'production' : 'development'
+
+		args._.shift() // remove command itself
+		rawArgv.shift()
 
 		return command(this.options, args)
 	}
@@ -93,9 +104,12 @@ module.exports = class Service {
 			'./configs/js'
 		]
 
+		const baseConfigs = []
+
 		webpackConfigs.forEach(configFile => {
-			this.webpackChainFns.push(require( configFile ))
+			baseConfigs.push(require( configFile ))
 		});
+		baseConfigs.forEach(fn => fn(chainableWebpackConfig, this))
 
 		this.webpackChainFns.forEach(fn => fn(chainableWebpackConfig, this))
 		return chainableWebpackConfig
@@ -115,10 +129,59 @@ module.exports = class Service {
 		return `http://localhost:${this.availablePort}/`
 	}
 
+	setEntries () {
+		const glob = require('glob')
+		this.entries = this.options.getOption('webpackEntries', {})
+		const elementsFolder = this.options.getOption('elementsFolder')
+
+		/**
+		 * Get all elements entries
+		 */
+		glob.sync(`${elementsFolder}/**/src/editor.js`).forEach((file) => {
+			const fileInfo = path.parse(file)
+			const id = fileInfo.name
+			const destination = path.join(fileInfo.dir, '..')
+			const jsDestination = path.format({
+				root: fileInfo.root,
+				dir: destination,
+				name: id,
+				ext: '.js'
+			});
+
+			const cssDestination = path.format({
+				root: fileInfo.root,
+				dir: destination,
+				name: id,
+				ext: '.css'
+			});
+
+			this.entries[file] = {
+				source: file,
+				jsDestination,
+				cssDestination,
+			}
+		})
+
+	}
+
+	getEntries () {
+		return this.entries
+	}
+
+	getEntry (entryId) {
+		return this.entries[entryId]
+	}
+
 	resolveWebpackConfig (chainableWebpackConfig = this.resolveWebpackChain()) {
 		let config = chainableWebpackConfig.toConfig()
 		const userWebpackConfig = this.options.getOption('configureWebpack', {})
-		const entry = this.options.getOption('entry')
+		const entry = {}
+
+		// Convert entries to webpack entry
+		Object.keys(this.entries).forEach(singleEntry => {
+			const entryConfig = this.entries[singleEntry]
+			entry[singleEntry] = entryConfig.source
+		})
 
 		config = merge(config, userWebpackConfig, {
 			entry
@@ -131,65 +194,65 @@ module.exports = class Service {
 		return path.resolve(this.context, requestedPath)
 	}
 
-	  /**
-   * Generate a cache identifier from a number of variables
-   */
-  genCacheConfig (id, partialIdentifier, configFiles = []) {
-	const fs = require('fs')
-	const cacheDirectory = this.resolve(`node_modules/.cache/${id}`)
+	/**
+	 * Generate a cache identifier from a number of variables
+	 */
+	genCacheConfig (id, partialIdentifier, configFiles = []) {
+		const fs = require('fs')
+		const cacheDirectory = this.resolve(`node_modules/.cache/${id}`)
 
-	// replace \r\n to \n generate consistent hash
-	const fmtFunc = conf => {
-	  if (typeof conf === 'function') {
-		return conf.toString().replace(/\r\n?/g, '\n')
-	  }
-	  return conf
-	}
-
-	const variables = {
-	  partialIdentifier,
-	  'cli-service': require('../package.json').version,
-	  'cache-loader': require('cache-loader/package.json').version,
-	  env: process.env.NODE_ENV,
-	  config: [
-		fmtFunc(this.options.getOption('chainWebpack')),
-		fmtFunc( this.options.getOption('configureWebpack') )
-	  ]
-	}
-
-	if (!Array.isArray(configFiles)) {
-	  configFiles = [configFiles]
-	}
-	configFiles = configFiles.concat([
-	  'package-lock.json',
-	  'yarn.lock',
-	  'pnpm-lock.yaml'
-	])
-
-	const readConfig = file => {
-	  const absolutePath = this.resolve(file)
-	  if (!fs.existsSync(absolutePath)) {
-		return
-	  }
-
-	  if (absolutePath.endsWith('.js')) {
-		// should evaluate config scripts to reflect environment variable changes
-		try {
-		  return JSON.stringify(require(absolutePath))
-		} catch (e) {
-		  return fs.readFileSync(absolutePath, 'utf-8')
+		// replace \r\n to \n generate consistent hash
+		const fmtFunc = conf => {
+			if (typeof conf === 'function') {
+			return conf.toString().replace(/\r\n?/g, '\n')
+			}
+			return conf
 		}
-	  } else {
-		return fs.readFileSync(absolutePath, 'utf-8')
-	  }
+
+		const variables = {
+			partialIdentifier,
+			'cli-service': require('../package.json').version,
+			'cache-loader': require('cache-loader/package.json').version,
+			env: process.env.NODE_ENV,
+			config: [
+				fmtFunc(this.options.getOption('chainWebpack')),
+				fmtFunc( this.options.getOption('configureWebpack') )
+			]
+		}
+
+		if (!Array.isArray(configFiles)) {
+			configFiles = [configFiles]
+		}
+		configFiles = configFiles.concat([
+			'package-lock.json',
+			'yarn.lock',
+			'pnpm-lock.yaml'
+		])
+
+		const readConfig = file => {
+			const absolutePath = this.resolve(file)
+			if (!fs.existsSync(absolutePath)) {
+			return
+			}
+
+			if (absolutePath.endsWith('.js')) {
+			// should evaluate config scripts to reflect environment variable changes
+			try {
+				return JSON.stringify(require(absolutePath))
+			} catch (e) {
+				return fs.readFileSync(absolutePath, 'utf-8')
+			}
+			} else {
+			return fs.readFileSync(absolutePath, 'utf-8')
+			}
+		}
+
+		variables.configFiles = configFiles.map(file => {
+			const content = readConfig(file)
+			return content && content.replace(/\r\n?/g, '\n')
+		})
+
+		const cacheIdentifier = hash(variables)
+		return { cacheDirectory, cacheIdentifier }
 	}
-
-	variables.configFiles = configFiles.map(file => {
-	  const content = readConfig(file)
-	  return content && content.replace(/\r\n?/g, '\n')
-	})
-
-	const cacheIdentifier = hash(variables)
-	return { cacheDirectory, cacheIdentifier }
-  }
 }

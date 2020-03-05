@@ -1,11 +1,13 @@
 module.exports = (webpackConfig, service) => {
     const options = service.options
-    const outputDir = options.getOption('outputDir', 'dist')
+    const outputDir = options.getOption('outputDir', './')
     const publicPath = service.getPublicPath()
 
     const resolveLocal = require('../util/resolveLocal')
     const getAssetPath = require('../util/getAssetPath')
     const inlineLimit = 4096
+
+    const webpackEntries = service.getEntries()
 
     const genAssetSubPath = dir => {
       return getAssetPath(
@@ -28,15 +30,23 @@ module.exports = (webpackConfig, service) => {
     }
 
     webpackConfig
-      .mode('development')
+      .mode('production')
       .context(service.context)
       .output
         .path(service.resolve(outputDir))
         .filename(chunkData => {
-            const name = chunkData.chunk.id.replace('src/', 'dist/js/')
-            return `../${name}.js`
+            const entry = webpackEntries[chunkData.chunk.name]
+            return entry.jsDestination
         })
         .publicPath(publicPath)
+
+      webpackConfig
+        .performance
+        .hints(false)
+
+      // webpackConfig
+      //   .stats('errors-warnings')
+        
 
     webpackConfig.resolve
         // This plugin can be removed once we switch to Webpack 6

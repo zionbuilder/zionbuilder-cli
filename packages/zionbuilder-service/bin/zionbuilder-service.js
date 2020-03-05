@@ -4,7 +4,10 @@ const service = new Service(process.cwd())
 
 const rawArgv = process.argv.slice(2)
 const args = require('minimist')(rawArgv, {
-  boolean: []
+  boolean: [
+    // build
+    'baseline'
+  ]
 })
 
 const command = args._[0]

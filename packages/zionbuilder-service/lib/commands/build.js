@@ -1,3 +1,5 @@
+const webpack = require('webpack')
+const path = require('path')
 const {
     info,
     done
@@ -5,41 +7,59 @@ const {
 
 module.exports = (options, args) => {
     const service = process.ZIONBUILDER_SERVICE
-    console.log(info)
-    return new Promise((resolve) => {
+
+    return new Promise((resolve, reject) => {
         const gulpTask = require('../../tasks/scripts')
 
         info('ZionBuilder Service is building files.')
 
         gulpTask.build()
 
+        service.chainWebpack(webpackConfig => {
+            webpackConfig.mode('production')
+
+            const { BundleStatsWebpackPlugin } = require('bundle-stats-webpack-plugin');
+            webpackConfig
+                .plugin('bundle-stats-webpack-plugin')
+                .use(new BundleStatsWebpackPlugin({
+                    baseline: true
+                }))
+        })
+
         // Webpack
         const webpackConfig = service.resolveWebpackConfig()
 
-        const formatStats = require('../util/formatStats')
         webpack(webpackConfig, (err, stats) => {
+            if (err) {
+                console.error(err.stack || err);
+                if (err.details) {
+                  console.error(err.details);
+                }
+                return;
+              }
+            
+              const info = stats.toJson();
+            
+              if (stats.hasErrors()) {
+                console.error(info.errors);
+              }
+            
+              if (stats.hasWarnings()) {
+                console.warn(info.warnings);
+              }
+
+
+
             if (err) {
                 return reject(err)
             }
-        
+
             if (stats.hasErrors()) {
                 return reject(`Build failed with errors.`)
             }
-        
-            if (!args.silent) {
-                const targetDirShort = path.relative(
-                    service.context,
-                    targetDir
-                )
-                
-                console.log(formatStats(stats, targetDirShort, service))
-                if (args.target === 'app' && !isLegacyBuild) {
-                    if (!args.watch) {
-                        done(`Build complete.`)
-                    }
-                }
-            }
-            
+
+            done(`Build complete.`)
+
             resolve()
         })
 
