@@ -21,6 +21,7 @@
     "cache-loader": "^4.1.0",
     "case-sensitive-paths-webpack-plugin": "^2.3.0",
     "chalk": "^3.0.0",
+    "cliui": "^6.0.0",
     "css-loader": "^3.4.2",
     "cssnano": "^4.1.10",
     "fibers": "^4.0.2",
@@ -54,7 +55,8 @@
     "webpack": "^4.42.0",
     "webpack-chain": "^6.4.0",
     "webpack-dev-server": "^3.10.3",
-    "webpack-merge": "^4.2.2"
+    "webpack-merge": "^4.2.2",
+    "zlib": "^1.0.5"
   },
   "publishConfig": {
     "access": "public"

@@ -1,4 +1,3 @@
-console.log('aaaaaaaaaaaaaaaaaaaaaa')
 module.exports = {
 	presets: [
 		[
