@@ -30,7 +30,7 @@ function elementScriptsTask (cb) {
 function elementStylesTask (cb) {
     const options = service.options
     const elementsFolder = path.relative(service.context, options.getOption('elementsFolder'))
-    const compiledMixins = options.getOption('css.scss.appendData', '')
+    const compiledMixins = options.getOption('css.scss.prependData', '')
 
     console.log( chalk.blue('Starting elements styles compilation') )
 
