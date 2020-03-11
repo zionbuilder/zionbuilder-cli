@@ -4,7 +4,7 @@ const { watch, series } = require('gulp')
 const webpack = require('webpack')
 const merge = require('webpack-merge')
 
-const { elementScriptsTask, elementStylesTask } = require('./scripts')
+const { elementScriptsTask } = require('./scripts')
 
 const service = process.ZIONBUILDER_SERVICE
 const options = service.options
@@ -14,7 +14,6 @@ function watchTask () {
 
 	const elementsFolder = options.getOption('elementsFolder')
 	watch(`${elementsFolder}/**/src/element.js`, elementScriptsTask)
-	watch(`${elementsFolder}/**/src/element.scss`, elementStylesTask)
 
 	// webpack
 	const port = service.availablePort

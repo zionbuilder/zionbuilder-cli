@@ -18,17 +18,19 @@ module.exports = (options, args) => {
         service.chainWebpack(webpackConfig => {
             webpackConfig.mode('production')
 
-            const { BundleStatsWebpackPlugin } = require('bundle-stats-webpack-plugin');
-            webpackConfig
-                .plugin('bundle-stats-webpack-plugin')
-                .use(new BundleStatsWebpackPlugin({
-                    baseline: true
-                }))
+            if (service.options.getOption('writeStats', false) === true) {
+                const { BundleStatsWebpackPlugin } = require('bundle-stats-webpack-plugin');
+                webpackConfig
+                    .plugin('bundle-stats-webpack-plugin')
+                    .use(new BundleStatsWebpackPlugin({
+                        baseline: true
+                    }))
+            }
         })
 
         // Webpack
         const webpackConfig = service.resolveWebpackConfig()
-
+   
         webpack(webpackConfig, (err, stats) => {
             if (err) {
                 console.error(err.stack || err);
@@ -37,18 +39,16 @@ module.exports = (options, args) => {
                 }
                 return;
               }
-            
+
               const info = stats.toJson();
-            
+
               if (stats.hasErrors()) {
                 console.error(info.errors);
               }
-            
+
               if (stats.hasWarnings()) {
                 console.warn(info.warnings);
               }
-
-
 
             if (err) {
                 return reject(err)

@@ -8,16 +8,18 @@ const merge = require('webpack-merge')
 const resolvePkg = require('./util/resolvePkg').resolvePkg
 const findFreePort = require('find-free-port-sync')
 
-
 module.exports = class Service {
 	constructor (context, { pkg } = {}) {
 		this.context = context
-		this.options = new Options( this.resolveConfig() )
+		this.options = new Options( this.resolveConfig(), {
+			outputDir: this.resolve(this.context, './dist/'),
+			assetsDir: this.resolve(this.context, './dist/'),
+		})
 		this.webpackChainFns = []
 
 		this.availablePort = findFreePort()
 		this.entries = {}
-		
+
 		// Folder containing the target package.json for plugins
 		this.pkgContext = context
 		// package.json containing the plugins
@@ -81,7 +83,7 @@ module.exports = class Service {
 
 	run(name, args, rawArgv) {
 		const command = this.commands[name]
-		
+
 		// Initialize webpack entries
 		this.setEntries()
 
@@ -137,32 +139,17 @@ module.exports = class Service {
 		/**
 		 * Get all elements entries
 		 */
-		glob.sync(`${elementsFolder}/**/src/editor.js`).forEach((file) => {
+		glob.sync(`${elementsFolder}/**/src/*(editor.js|element.scss)`).forEach((file) => {
 			const fileInfo = path.parse(file)
-			const id = fileInfo.name
 			const destination = path.join(fileInfo.dir, '..')
-			const jsDestination = path.format({
-				root: fileInfo.root,
-				dir: destination,
-				name: id,
-				ext: '.js'
-			});
 
-			const cssDestination = path.format({
-				root: fileInfo.root,
-				dir: destination,
-				name: id,
-				ext: '.css'
-			});
-
-			this.entries[file] = {
+			this.entries[fileInfo.name] = {
 				source: file,
-				jsDestination,
-				cssDestination,
+				destination: path.resolve( destination )
 			}
 		})
-
 	}
+
 
 	getEntries () {
 		return this.entries
@@ -175,19 +162,39 @@ module.exports = class Service {
 	resolveWebpackConfig (chainableWebpackConfig = this.resolveWebpackChain()) {
 		let config = chainableWebpackConfig.toConfig()
 		const userWebpackConfig = this.options.getOption('configureWebpack', {})
-		const entry = {}
+		const entries = {}
 
 		// Convert entries to webpack entry
 		Object.keys(this.entries).forEach(singleEntry => {
 			const entryConfig = this.entries[singleEntry]
-			entry[singleEntry] = entryConfig.source
+			const destination = entryConfig.destination || this.options.getOption('outputDir', './dist')
+
+			if (typeof entries[destination] === 'undefined') {
+				entries[destination] = {}
+			}
+
+			entries[destination][singleEntry] = entryConfig.source
+
 		})
 
-		config = merge(config, userWebpackConfig, {
-			entry
+		const multiCompilerConfig = []
+
+		Object.keys(entries).forEach(outputPath => {
+			const entryFiles = entries[outputPath]
+
+			multiCompilerConfig.push(merge(
+				config,
+				userWebpackConfig,
+				{
+					entry: entryFiles,
+					output: {
+						path: outputPath
+					}
+				}
+			))
 		})
 
-		return config
+		return multiCompilerConfig
 	}
 
 	resolve (requestedPath) {

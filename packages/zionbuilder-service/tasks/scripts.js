@@ -27,34 +27,6 @@ function elementScriptsTask (cb) {
     cb()
 }
 
-function elementStylesTask (cb) {
-    const options = service.options
-    const elementsFolder = path.relative(service.context, options.getOption('elementsFolder'))
-    const compiledMixins = options.getOption('css.scss.prependData', '')
-
-    console.log( chalk.blue('Starting elements styles compilation') )
-
-    src(`${elementsFolder}/**/src/element.scss`)
-        .pipe( insert.prepend(compiledMixins) )
-        .pipe(sass().on('error', sass.logError))
-        .pipe(postcss(
-            [
-                require('autoprefixer')
-            ],
-            {
-                parser: require('postcss-scss')
-            }
-        ))
-        .pipe(rename(function(file) {
-            // Change destination to element folder
-            file.dirname = path.join( file.dirname, '..' )
-            file.extname = '.css'
-        }))
-        .pipe(dest(`${elementsFolder}`))
-
-    cb()
-}
-
 function webpack (cb) {
     const elementsFolder = path.relative(service.context, options.getOption('elementsFolder'))
     
@@ -71,7 +43,6 @@ function webpack (cb) {
     cb()
 }
 
-exports.build = series(elementScriptsTask, elementStylesTask);
+exports.build = series(elementScriptsTask);
 exports.elementScriptsTask = series(elementScriptsTask);
-exports.elementStylesTask = series(elementStylesTask);
 exports.webpack = series(webpack);

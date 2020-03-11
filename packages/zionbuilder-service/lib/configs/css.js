@@ -15,6 +15,10 @@ module.exports = (webpackConfig, service) => {
     const isProd = process.env.NODE_ENV === 'production'
     const webpackEntries = service.getEntries()
 
+    webpackConfig
+        .plugin('webpack-fix-style-only-entries')
+            .use(require("webpack-fix-style-only-entries"))
+
     let sassLoaderVersion
     try {
       sassLoaderVersion = semver.major(require('sass-loader/package.json').version)
@@ -35,7 +39,7 @@ module.exports = (webpackConfig, service) => {
     } catch (e) {}
 
     const {
-      extract = isProd,
+      extract = true,
       sourceMap = false,
       loaderOptions = {}
     } = rootOptions.css || {}
@@ -50,10 +54,7 @@ module.exports = (webpackConfig, service) => {
 
     const shouldExtract = extract !== false && !shadowMode
     const extractOptions = Object.assign({
-      moduleFilename: ({ name }) => {
-        const entry = webpackEntries[name]
-        return entry.cssDestination
-      }
+      filename: '[name].css'
     }, extract && typeof extract === 'object' ? extract : {})
 
     // check if the project has a valid postcss config

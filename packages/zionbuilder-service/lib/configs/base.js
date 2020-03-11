@@ -1,6 +1,6 @@
 module.exports = (webpackConfig, service) => {
     const options = service.options
-    const outputDir = options.getOption('outputDir', './')
+    const outputDir = options.getOption('outputDir', './dist/')
     const publicPath = service.getPublicPath()
 
     const resolveLocal = require('../util/resolveLocal')
@@ -29,24 +29,18 @@ module.exports = (webpackConfig, service) => {
       }
     }
 
+
     webpackConfig
       .mode('production')
       .context(service.context)
       .output
         .path(service.resolve(outputDir))
-        .filename(chunkData => {
-            const entry = webpackEntries[chunkData.chunk.name]
-            return entry.jsDestination
-        })
+        .filename('[name].js')
         .publicPath(publicPath)
 
       webpackConfig
         .performance
         .hints(false)
-
-      // webpackConfig
-      //   .stats('errors-warnings')
-        
 
     webpackConfig.resolve
         // This plugin can be removed once we switch to Webpack 6
@@ -69,7 +63,7 @@ module.exports = (webpackConfig, service) => {
               ? 'vue/dist/vue.esm.js'
               : 'vue/dist/vue.runtime.esm.js'
           )
-  
+
     webpackConfig.resolveLoader
         .plugin('pnp-loaders')
           .use({ ...require('pnp-webpack-plugin').topLevelLoader })
@@ -78,7 +72,7 @@ module.exports = (webpackConfig, service) => {
           .add('node_modules')
           .add(service.resolve('node_modules'))
           .add(resolveLocal('node_modules'))
-  
+
     webpackConfig.module
         .noParse(/^(vue|vue-router|vuex|vuex-router-sync)$/)
 
@@ -86,7 +80,7 @@ module.exports = (webpackConfig, service) => {
     const vueLoaderCacheIdentifier = {
         'vue-loader': require('vue-loader/package.json').version
     }
-  
+
     // The following 2 deps are sure to exist in Vue 2 projects.
     // But once we switch to Vue 3, they're no longer mandatory.
     // (In Vue 3 they are replaced by @vue/compiler-sfc)
@@ -98,7 +92,7 @@ module.exports = (webpackConfig, service) => {
             require('vue-template-compiler/package.json').version
       } catch (e) {}
     const vueLoaderCacheConfig = service.genCacheConfig('vue-loader', vueLoaderCacheIdentifier)
-  
+
     webpackConfig.module
         .rule('vue')
             .test(/\.vue$/)
@@ -113,13 +107,12 @@ module.exports = (webpackConfig, service) => {
                     whitespace: 'condense'
                 }
             }, vueLoaderCacheConfig))
-  
+
       webpackConfig
         .plugin('vue-loader')
         .use(require('vue-loader/lib/plugin'))
 
     // static assets -----------------------------------------------------------
-
     webpackConfig.module
       .rule('images')
         .test(/\.(png|jpe?g|gif|webp)(\?.*)?$/)
