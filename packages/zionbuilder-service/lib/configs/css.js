@@ -13,7 +13,6 @@ module.exports = (webpackConfig, service) => {
     const rootOptions = service.options.getOptions()
     const shadowMode = !!process.env.ZIONBUILDER_CLI_CSS_SHADOW_MODE
     const isProd = process.env.NODE_ENV === 'production'
-    const webpackEntries = service.getEntries()
 
     webpackConfig
         .plugin('webpack-fix-style-only-entries')

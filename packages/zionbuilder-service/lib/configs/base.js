@@ -7,8 +7,6 @@ module.exports = (webpackConfig, service) => {
     const getAssetPath = require('../util/getAssetPath')
     const inlineLimit = 4096
 
-    const webpackEntries = service.getEntries()
-
     const genAssetSubPath = dir => {
       return getAssetPath(
         options,
@@ -36,7 +34,6 @@ module.exports = (webpackConfig, service) => {
       .output
         .path(service.resolve(outputDir))
         .filename('[name].js')
-        .publicPath(publicPath)
 
       webpackConfig
         .performance
