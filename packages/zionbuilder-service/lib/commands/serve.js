@@ -11,8 +11,6 @@ module.exports = (options, args) => {
         const chalk = require('chalk')
         const port = service.availablePort
 
-        // BrowserSyncPlugin = require('browser-sync-webpack-plugin');
-
         service.chainWebpack(webpackConfig => {
             webpackConfig.mode('development')
 
@@ -25,22 +23,16 @@ module.exports = (options, args) => {
 
             // https://github.com/webpack/webpack/issues/6642
             // https://github.com/vuejs/vue-cli/issues/3539
-            // webpackConfig
-            //     .output
-            //     .globalObject(`(typeof self !== 'undefined' ? self : this)`)
+            webpackConfig
+                .output
+                .globalObject(`(typeof self !== 'undefined' ? self : this)`)
+
 
             if (options.getOption('progress', true) !== false) {
                 webpackConfig
                     .plugin('progress')
                     .use(require('webpack/lib/ProgressPlugin'))
             }
-
-            // webpackConfig
-            //     .plugin('browser-sync')
-            //     .use(new BrowserSyncPlugin({
-            //         files: '**/*.php',
-            //         injectChanges: true,
-            //     }))
         })
 
         function addHotClientToEntries(webpackConfig) {
@@ -50,9 +42,9 @@ module.exports = (options, args) => {
                 if (typeof config.entry === 'object') {
                     Object.keys(config.entry).forEach(entryName => {
                         const entry = config.entry[entryName]
-                        const hotMiddlewareScript = 'webpack-hot-middleware/client?path=http://localhost:' + port +'/__webpack_hmr'
                         config.entry[entryName] = [
-                            hotMiddlewareScript,
+                            require.resolve(`webpack-dev-server/client`) + `?http://localhost:${port}/sockjs-node`,
+                            require.resolve(`webpack/hot/dev-server`),
                             entry
                         ]
                     })
@@ -79,65 +71,20 @@ module.exports = (options, args) => {
             },
             port,
             hot: true,
-            injectClient: true,
-            injectHot: true,
+            injectClient: false,
+            injectHot: false,
             liveReload: false,
+            writeToDisk: true,
+            inline: true,
             writeToDisk (filePath) {
                 // Only write our own files to disk
                 return !/hot-update\.(json|js)$/.test(filePath)
-            },
-            open: true
+            }
         }
+        
         addHotClientToEntries(webpackConfig);
 
         const compiler = webpack(webpackConfig);
-        const WebpackDevMiddleware = require('webpack-dev-middleware')
-        const WebpackHotMiddleware = require('webpack-hot-middleware')
-        const app = require('express')()
-
-
-        const devMiddleware = WebpackDevMiddleware(compiler, {
-            ...devServerOptions
-        })
-
-        // console.log(c.output.path + '\__webpack_hmr')
-        const hotMiddleware = WebpackHotMiddleware(compiler, {
-            // name: c.name,
-            // path: 'dist/__webpack_hmr',
-            log: console.log
-        });
-
-        app.use(devMiddleware)
-        app.use(hotMiddleware)
-
-        // webpackConfig.forEach(c => {
-        //     const compiler = webpack(c)
-        //     const devMiddleware = WebpackDevMiddleware(compiler, {
-        //         ...devServerOptions,
-        //         publicPath: c.output.publicPath
-        //     })
-
-        //     console.log(c.output.path + '\__webpack_hmr')
-        //     const hotMiddleware = WebpackHotMiddleware(compiler, {
-        //         name: c.name,
-        //         path: c.output.path + '\__webpack_hmr',
-        //         log: console.log
-        //     });
-            
-        //     app.use(devMiddleware)
-        //     app.use(hotMiddleware)
-        //   })
-          
-          app.listen(port, err => {
-            if (err) throw err
-            console.log('Compiled successfully!')
-            console.log('You can view the application in browser.')
-            console.log()
-            console.log()
-            console.log('Local: http://localhost:' + port)
-          })
-        return
-
         const server = new webpackDevServer(compiler, devServerOptions)
 
         ;['SIGINT', 'SIGTERM'].forEach(signal => {

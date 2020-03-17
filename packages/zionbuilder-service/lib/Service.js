@@ -146,7 +146,7 @@ module.exports = class Service {
 		 */
 		glob.sync(`${elementsFolder}/**/src/*(editor.js|element.scss)`).forEach((file) => {
 			const fileInfo = path.parse(file)
-			const destination = path.join(fileInfo.dir, '..')
+			const destination = path.join(fileInfo.dir, '..', '/')
 
 			if (typeof entries[destination] === 'undefined') {
 				entries[destination] = {}
