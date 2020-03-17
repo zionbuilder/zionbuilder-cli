@@ -38,7 +38,7 @@
     "hash-sum": "^2.0.0",
     "less-loader": "^5.0.0",
     "mini-css-extract-plugin": "^0.9.0",
-    "minimist": "^1.2.0",
+    "minimist": ">=1.2.2",
     "node-sass": "^4.13.1",
     "pnp-webpack-plugin": "^1.6.4",
     "postcss-loader": "^3.0.0",
