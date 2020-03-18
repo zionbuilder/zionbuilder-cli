@@ -34,6 +34,7 @@ module.exports = (webpackConfig, service) => {
       .output
         .path(service.resolve(outputDir))
         .filename('[name].js')
+        .publicPath(`http://localhost:${service.availablePort}/`)
 
       webpackConfig
         .performance

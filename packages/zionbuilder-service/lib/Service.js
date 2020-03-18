@@ -91,7 +91,7 @@ module.exports = class Service {
 		// Set the proper mode
 		const environmentMode = name === 'build' ? 'production' : 'development'
 		this.setEnvironmentMode(environmentMode)
-		
+
 		args._.shift() // remove command itself
 		rawArgv.shift()
 
@@ -137,81 +137,28 @@ module.exports = class Service {
 		return `http://localhost:${this.availablePort}/`
 	}
 
-	setEntries (entries) {
-		const glob = require('glob')
-		const elementsFolder = this.options.getOption('elementsFolder')
-
-		/**
-		 * Get all elements entries
-		 */
-		glob.sync(`${elementsFolder}/**/src/*(editor.js|element.scss)`).forEach((file) => {
-			const fileInfo = path.parse(file)
-			const destination = path.join(fileInfo.dir, '..', '/')
-
-			if (typeof entries[destination] === 'undefined') {
-				entries[destination] = {}
-			}
-
-			entries[destination][fileInfo.name] = file
-		})
-	}
-
-
-	getEntries () {
-		return this.entries
-	}
-
-	getEntry (entryId) {
-		return this.entries[entryId]
-	}
-
-	addEntryToWebpack () {
-
-	}
-
 	resolveWebpackConfig (chainableWebpackConfig = this.resolveWebpackChain()) {
 		let config = chainableWebpackConfig.toConfig()
 		const userWebpackConfig = this.options.getOption('configureWebpack', {})
 		const userEntries = this.options.getOption('webpackEntries', {})
-		const entries = {}
+		const entry = {}
 
 		// Sort entries based on outptup path
-		Object.keys(userEntries).forEach(singleEntry => {
-			const entryConfig = userEntries[singleEntry]
-			const destination = entryConfig.destination || this.options.getOption('outputDir', './dist')
+		userEntries.forEach(entryConfig => {
+			const fileInfo = path.parse(entryConfig.source)
+			const filename = entryConfig.filename ? entryConfig.filename : `${fileInfo.name}`
+			const outputDir = entryConfig.outputDir ? entryConfig.outputDir + filename : filename
 
-			if (typeof entries[destination] === 'undefined') {
-				entries[destination] = {}
+			entry[outputDir] = entryConfig.source
+		})
+
+		return merge(
+			config,
+			userWebpackConfig,
+			{
+				entry
 			}
-
-			entries[destination][singleEntry] = entryConfig.source
-		})
-
-		// Add Elements Entries
-		this.setEntries(entries)
-
-		const multiCompilerConfig = []
-
-		let appCount = 1
-		Object.keys(entries).forEach(outputPath => {
-			const entryFiles = entries[outputPath]
-			multiCompilerConfig.push(merge(
-				config,
-				userWebpackConfig,
-				{
-					name: `zionApp${appCount}`,
-					entry: entryFiles,
-					output: {
-						path: path.resolve( outputPath ),
-						publicPath: `http://localhost:${this.availablePort}/${outputPath.replace('./', '')}`
-					}
-				}
-			))
-
-			appCount++
-		})
-
-		return multiCompilerConfig
+		)
 	}
 
 	resolve (requestedPath) {

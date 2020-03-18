@@ -68,5 +68,8 @@
   "bugs": {
     "url": "https://github.com/zionbuilder/zionbuilder-cli/issues"
   },
-  "gitHead": "692654c41f45623e695dc3f1f96bd23dadbb9c2d"
+  "gitHead": "692654c41f45623e695dc3f1f96bd23dadbb9c2d",
+  "devDependencies": {
+    "clean-webpack-plugin": "^3.0.0"
+  }
 }

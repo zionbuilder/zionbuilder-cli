@@ -71,10 +71,9 @@ module.exports = (options, args) => {
             },
             port,
             hot: true,
-            injectClient: false,
-            injectHot: false,
+            injectClient: true,
+            injectHot: true,
             liveReload: false,
-            writeToDisk: true,
             inline: true,
             writeToDisk (filePath) {
                 // Only write our own files to disk
@@ -82,7 +81,7 @@ module.exports = (options, args) => {
             }
         }
         
-        addHotClientToEntries(webpackConfig);
+        // addHotClientToEntries(webpackConfig);
 
         const compiler = webpack(webpackConfig);
         const server = new webpackDevServer(compiler, devServerOptions)

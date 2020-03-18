@@ -26,6 +26,11 @@ module.exports = (options, args) => {
                         baseline: true
                     }))
             }
+
+            webpackConfig
+                .plugin('clean-webpack-plugin')
+                .use(require('clean-webpack-plugin').CleanWebpackPlugin)
+
         })
 
         // Webpack
