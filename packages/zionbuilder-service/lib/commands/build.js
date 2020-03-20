@@ -9,11 +9,7 @@ module.exports = (options, args) => {
     const service = process.ZIONBUILDER_SERVICE
 
     return new Promise((resolve, reject) => {
-        const gulpTask = require('../../tasks/scripts')
-
         info('ZionBuilder Service is building files.')
-
-        gulpTask.build()
 
         service.chainWebpack(webpackConfig => {
             webpackConfig.mode('production')
