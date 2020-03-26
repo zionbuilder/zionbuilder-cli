@@ -1,6 +1,6 @@
 {
   "name": "@zionbuilder/zionbuilder-service",
-  "version": "0.1.10",
+  "version": "0.2.0",
   "description": "> TODO: description",
   "homepage": "",
   "main": "index.js",
@@ -15,7 +15,7 @@
     "@intervolga/optimize-cssnano-plugin": "^1.0.6",
     "@soda/friendly-errors-webpack-plugin": "^1.7.1",
     "@vue/component-compiler-utils": "^3.1.1",
-    "@zionbuilder/babel-preset-zionbuilder": "^0.1.5",
+    "@zionbuilder/babel-preset-zionbuilder": "^0.2.0",
     "autoprefixer": "^9.7.4",
     "babel-loader": "^8.0.6",
     "browser-sync-webpack-plugin": "^2.2.2",
