@@ -23,9 +23,9 @@ module.exports = (options, args) => {
                     }))
             }
 
-            webpackConfig
-                .plugin('clean-webpack-plugin')
-                .use(require('clean-webpack-plugin').CleanWebpackPlugin)
+            // webpackConfig
+            //     .plugin('clean-webpack-plugin')
+            //     .use(require('clean-webpack-plugin').CleanWebpackPlugin)
 
         })
 

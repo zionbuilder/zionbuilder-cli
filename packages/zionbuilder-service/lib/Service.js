@@ -6,7 +6,7 @@ const Config = require('webpack-chain')
 const hash = require('hash-sum')
 const merge = require('webpack-merge')
 const resolvePkg = require('./util/resolvePkg').resolvePkg
-const findFreePort = require('find-free-port-sync')
+const getPort = require('get-port')
 
 module.exports = class Service {
 	constructor (context, { pkg } = {}) {
@@ -15,10 +15,8 @@ module.exports = class Service {
 			outputDir: this.resolve(this.context, './dist/'),
 			assetsDir: this.resolve(this.context, './dist/'),
 		})
-		this.webpackChainFns = []
 
-		this.availablePort = findFreePort()
-		this.entries = {}
+		this.webpackChainFns = []
 
 		// Folder containing the target package.json for plugins
 		this.pkgContext = context
@@ -85,7 +83,7 @@ module.exports = class Service {
 		process.env.NODE_ENV = environmentMode
 	}
 
-	run(name, args, rawArgv) {
+	async run(name, args, rawArgv) {
 		const command = this.commands[name]
 
 		// Set the proper mode
@@ -94,6 +92,10 @@ module.exports = class Service {
 
 		args._.shift() // remove command itself
 		rawArgv.shift()
+
+		this.availablePort = await getPort({
+			port: 8080
+		})
 
 		return command(this.options, args)
 	}
@@ -117,6 +119,7 @@ module.exports = class Service {
 		webpackConfigs.forEach(configFile => {
 			baseConfigs.push(require( configFile ))
 		});
+
 		baseConfigs.forEach(fn => fn(chainableWebpackConfig, this))
 
 		this.webpackChainFns.forEach(fn => fn(chainableWebpackConfig, this))
@@ -138,10 +141,12 @@ module.exports = class Service {
 	}
 
 	resolveWebpackConfig (chainableWebpackConfig = this.resolveWebpackChain()) {
+		const glob = require('glob')
 		let config = chainableWebpackConfig.toConfig()
 		const userWebpackConfig = this.options.getOption('configureWebpack', {})
 		const userEntries = this.options.getOption('webpackEntries', {})
 		const entry = {}
+		const path = require('path')
 
 		// Sort entries based on outptup path
 		userEntries.forEach(entryConfig => {
@@ -152,13 +157,44 @@ module.exports = class Service {
 			entry[outputDir] = entryConfig.source
 		})
 
-		return merge(
+		const baseWebpackConfig = merge(
 			config,
-			userWebpackConfig,
+			userWebpackConfig
+		)
+
+		const userFilesConfig = merge(
+			baseWebpackConfig,
 			{
 				entry
 			}
 		)
+
+		// Add elements configs
+		const elementsConfig = []
+		const elementsFolder = this.options.getOption('elementsFolder')
+		glob.sync(`${elementsFolder}/**/src/*(editor.js|script.js|style.scss)`).forEach((file) => {
+			const fileInfo = path.parse(file)
+			const outputDir = path.join(fileInfo.dir , '..')
+			const relativePath = path.relative( this.context, outputDir )
+
+			elementsConfig.push(merge(
+				baseWebpackConfig,
+				{
+					entry: {
+						[fileInfo.name]: file
+					},
+					output: {
+						path: this.resolve( outputDir + path.sep ),
+						publicPath: this.getPublicPath() + '' + relativePath.replace(/\\/g, '/') + path.sep
+					}
+				}
+			))
+		})
+
+		return [
+			userFilesConfig,
+			...elementsConfig
+		]
 	}
 
 	resolve (requestedPath) {

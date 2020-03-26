@@ -1,4 +1,5 @@
 module.exports = (webpackConfig, service) => {
+    const path = require('path')
     const options = service.options
     const outputDir = options.getOption('outputDir', './dist/')
     const publicPath = service.getPublicPath()
@@ -17,6 +18,7 @@ module.exports = (webpackConfig, service) => {
     const genUrlLoaderOptions = dir => {
       return {
         limit: inlineLimit,
+        publicPath: './',
         // use explicit fallback to avoid regression in url-loader>=1.1.0
         fallback: {
           loader: require.resolve('file-loader'),
@@ -27,14 +29,14 @@ module.exports = (webpackConfig, service) => {
       }
     }
 
-
+    const relativePath = path.relative( service.context, outputDir )
     webpackConfig
       .mode('production')
       .context(service.context)
       .output
-        .path(service.resolve(outputDir))
         .filename('[name].js')
-        .publicPath(`http://localhost:${service.availablePort}/`)
+        .path(service.resolve(outputDir))
+        .publicPath(publicPath + '' + relativePath + path.sep)
 
       webpackConfig
         .performance
