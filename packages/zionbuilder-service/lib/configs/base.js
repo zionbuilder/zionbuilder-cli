@@ -5,25 +5,23 @@ module.exports = (webpackConfig, service) => {
     const publicPath = service.getPublicPath()
 
     const resolveLocal = require('../util/resolveLocal')
-    const getAssetPath = require('../util/getAssetPath')
     const inlineLimit = 4096
 
     const genAssetSubPath = dir => {
-      return getAssetPath(
-        options,
-        `${dir}/[name]${options.filenameHashing ? '.[hash:8]' : ''}.[ext]`
-      )
+      return `${dir}/[name]${options.filenameHashing ? '.[hash:8]' : ''}.[ext]`
+      
     }
 
     const genUrlLoaderOptions = dir => {
       return {
         limit: inlineLimit,
-        publicPath: './',
+        // publicPath: './',
         // use explicit fallback to avoid regression in url-loader>=1.1.0
         fallback: {
           loader: require.resolve('file-loader'),
           options: {
-            name: genAssetSubPath(dir)
+            name: genAssetSubPath(dir),
+            esModule: false
           }
         }
       }
@@ -36,7 +34,7 @@ module.exports = (webpackConfig, service) => {
       .output
         .filename('[name].js')
         .path(service.resolve(outputDir))
-        .publicPath(publicPath + '' + relativePath + path.sep)
+        .publicPath(publicPath)
 
       webpackConfig
         .performance
@@ -128,7 +126,8 @@ module.exports = (webpackConfig, service) => {
         .use('file-loader')
             .loader(require.resolve('file-loader'))
             .options({
-                name: genAssetSubPath('img')
+                name: genAssetSubPath('img'),
+                esModule: false
             })
 
     webpackConfig.module
@@ -166,9 +165,13 @@ module.exports = (webpackConfig, service) => {
     const resolveClientEnv = require('../util/resolveClientEnv')
     webpackConfig
         .plugin('define')
-            .use(require('webpack').DefinePlugin, [
-                resolveClientEnv(options)
-            ])
+            .use(require('webpack').DefinePlugin, [{
+              'process.env.NODE_ENV': JSON.stringify( process.env.NODE_ENV ),
+                __ZIONBUILDER__: JSON.stringify({
+                  appName: service.pkg.name
+                })
+              }]
+            )
 
     webpackConfig
         .plugin('case-sensitive-paths')

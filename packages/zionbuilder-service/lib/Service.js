@@ -7,6 +7,7 @@ const hash = require('hash-sum')
 const merge = require('webpack-merge')
 const resolvePkg = require('./util/resolvePkg').resolvePkg
 const getPort = require('get-port')
+const { error, info, done } = require('./util')
 
 module.exports = class Service {
 	constructor (context, { pkg } = {}) {
@@ -137,24 +138,24 @@ module.exports = class Service {
 			return publicPath
 		}
 
-		return `http://localhost:${this.availablePort}/`
+		return `http://localhost/`
 	}
 
 	resolveWebpackConfig (chainableWebpackConfig = this.resolveWebpackChain()) {
 		const glob = require('glob')
-		let config = chainableWebpackConfig.toConfig()
-		const userWebpackConfig = this.options.getOption('configureWebpack', {})
-		const userEntries = this.options.getOption('webpackEntries', {})
-		const entry = {}
 		const path = require('path')
 
-		// Sort entries based on outptup path
-		userEntries.forEach(entryConfig => {
-			const fileInfo = path.parse(entryConfig.source)
-			const filename = entryConfig.filename ? entryConfig.filename : `${fileInfo.name}`
-			const outputDir = entryConfig.outputDir ? entryConfig.outputDir + filename : filename
+		const userWebpackConfig = this.options.getOption('configureWebpack', {})
+		let config = chainableWebpackConfig.toConfig()
+		let entry = this.options.getOption('webpackEntries', {})
 
-			entry[outputDir] = entryConfig.source
+		// Add elements folder files
+		const elementsFolder = this.options.getOption('elementsFolder')
+		glob.sync(`${elementsFolder}/*/*.{js,scss}`).forEach((file) => {
+			const fileInfo = path.parse(file)
+			const elementType = path.basename( fileInfo.dir )
+
+			entry[`js/elements/${elementType}/${fileInfo.name}`] = file
 		})
 
 		const baseWebpackConfig = merge(
@@ -169,36 +170,26 @@ module.exports = class Service {
 			}
 		)
 
-		// Add elements configs
-		const elementsConfig = []
-		const elementsFolder = this.options.getOption('elementsFolder')
-		glob.sync(`${elementsFolder}/**/src/*(editor.js|script.js|style.scss)`).forEach((file) => {
-			const fileInfo = path.parse(file)
-			const outputDir = path.join(fileInfo.dir , '..')
-			const relativePath = path.relative( this.context, outputDir )
-
-			elementsConfig.push(merge(
-				baseWebpackConfig,
-				{
-					entry: {
-						[fileInfo.name]: file
-					},
-					output: {
-						path: this.resolve( outputDir + path.sep ),
-						publicPath: this.getPublicPath() + '' + relativePath.replace(/\\/g, '/') + path.sep
-					}
-				}
-			))
-		})
-
-		return [
-			userFilesConfig,
-			...elementsConfig
-		]
+		return userFilesConfig
 	}
 
 	resolve (requestedPath) {
 		return path.resolve(this.context, requestedPath)
+	}
+
+	generateManifest( extraData = {} ) {
+		const outputFilePath = this.resolve('manifest.json')
+		let data = {
+			appName: this.pkg.name,
+			outputDir: 'dist',
+			...extraData
+		}
+
+		fs.writeFile(outputFilePath, JSON.stringify(data), function (err) {
+			if (err) return error(err);
+			console.log()
+			info('Manifest file written!')
+		});
 	}
 
 	/**

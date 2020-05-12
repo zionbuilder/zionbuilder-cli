@@ -8,6 +8,9 @@ const {
 module.exports = (options, args) => {
     const service = process.ZIONBUILDER_SERVICE
 
+    // Generate the manifest
+    service.generateManifest()
+
     return new Promise((resolve, reject) => {
         info('ZionBuilder Service is building files.')
 
@@ -32,6 +35,16 @@ module.exports = (options, args) => {
         // Webpack
         const webpackConfig = service.resolveWebpackConfig()
    
+        const applyDynamicPublicPathToEntries = function(entries) {
+            Object.keys(entries).forEach(entry => {
+                const entryValue = entries[entry]
+
+                entries[entry] = [ path.resolve(__dirname, '../util/dynamicPublicPath.js'), entryValue]
+            })
+        }
+
+        applyDynamicPublicPathToEntries(webpackConfig.entry)
+
         webpack(webpackConfig, (err, stats) => {
             if (err) {
                 console.error(err.stack || err);

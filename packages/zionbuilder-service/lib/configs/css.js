@@ -53,7 +53,10 @@ module.exports = (webpackConfig, service) => {
 
     const shouldExtract = extract !== false && !shadowMode
     const extractOptions = Object.assign({
-      filename: '[name].css'
+      filename: '[name].css',
+      moduleFilename: ({ name }) => {
+        return `${name.replace('js/', 'css/')}.css`
+      }
     }, extract && typeof extract === 'object' ? extract : {})
 
     // check if the project has a valid postcss config
@@ -116,9 +119,9 @@ module.exports = (webpackConfig, service) => {
             .loader(require('mini-css-extract-plugin').loader)
             .options({
               hmr: !isProd,
-              publicPath: (resourcePath, context) => {
-                return path.relative(path.dirname(resourcePath), context) + '/';
-              }
+              // publicPath: (resourcePath, context) => {
+              //   return path.relative(path.dirname(resourcePath), context) + '/';
+              // }
             })
         } else {
           rule
