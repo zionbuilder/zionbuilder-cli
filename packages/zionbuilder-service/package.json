@@ -62,7 +62,9 @@
     "webpack-dev-middleware": "^3.7.2",
     "webpack-fix-style-only-entries": "^0.4.0",
     "webpack-hot-middleware": "^2.25.0",
-    "webpack-merge": "^4.2.2"
+    "webpack-merge": "^4.2.2",
+    "clean-webpack-plugin": "^3.0.0",
+    "webpack-dev-server": "^3.10.3"
   },
   "publishConfig": {
     "access": "public"
@@ -72,9 +74,5 @@
   "bugs": {
     "url": "https://github.com/zionbuilder/zionbuilder-cli/issues"
   },
-  "gitHead": "692654c41f45623e695dc3f1f96bd23dadbb9c2d",
-  "devDependencies": {
-    "clean-webpack-plugin": "^3.0.0",
-    "webpack-dev-server": "^3.10.3"
-  }
+  "gitHead": "692654c41f45623e695dc3f1f96bd23dadbb9c2d"
 }
