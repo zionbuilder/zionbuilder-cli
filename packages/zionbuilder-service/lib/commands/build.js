@@ -76,7 +76,5 @@ module.exports = (options, args) => {
 
             resolve()
         })
-
-        resolve()
     })
 }
