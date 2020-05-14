@@ -33,132 +33,31 @@ module.exports = (options, args) => {
 			var input = require('fs').readFileSync('./languages/zion-builder.pot');
 			gettextParser.po.parse(input);
 
-			//copy languages folder to temp
-			fse.copy('./languages', './temp/languages', function (err) {
-				if (err) {
-					error(err);
-				} else {
-					info("folder languages copied");
-				}
+
+			const foldersMove = ['languages', 'assets', 'dist', 'includes', 'php-cs-fixer', 'scripts', 'vendor/composer']
+			// copy folders to temp
+			foldersMove.forEach(folder => {
+				fse.copy(`./${folder}`, `./temp/${folder}`, function (err) {
+					if (err) {
+						error(err);
+					} else {
+						info(`folder ${folder} copied`);
+					}
+				});
 			});
 
-			//copy assets folder to temp
-			fse.copy('./assets', './temp/assets', function (err) {
-				if (err) {
-					error(err);
-				} else {
-					info("folder assets copied");
-				}
-			});
+			const filesMove = ['zion-builder.php', 'manifest.json', 'zionbuilder.config.js', '.phpcs.xml', 'Readme.md', 'vendor/autoload.php']
+			filesMove.forEach(file => {
+				//copy files to temp
+				fs.copyFile(`./${file}`, `./temp/${file}`, (err) => {
+					if (err) {
+						error(err)
+					}
+					else {
+						info(`file ${file} copied`);
+					}
 
-			//copy dist folder to temp
-			fse.copy('./dist', './temp/dist', function (err) {
-				if (err) {
-					error(err);
-				} else {
-					info("folder dist copied");
-				}
-			});
-
-			//copy includes folder to temp
-			fse.copy('./includes', './temp/includes', function (err) {
-				if (err) {
-					error(err);
-				} else {
-					info("folder includes copied");
-				}
-			});
-
-			//copy includes folder to temp
-			fse.copy('./php-cs-fixer', './temp/php-cs-fixer', function (err) {
-				if (err) {
-					error(err);
-				} else {
-					info("folder php-cs-fixer copied");
-				}
-			});
-
-			//copy includes folder to temp
-			fse.copy('./scripts', './temp/scripts', function (err) {
-				if (err) {
-					error(err);
-				} else {
-					info("folder scripts copied");
-				}
-			});
-
-			//copy vendor folder to temp
-			fse.copy('./vendor/composer', './temp/vendor/composer', function (err) {
-				if (err) {
-					error(err);
-				} else {
-					info("folder vendor copied");
-				}
-			});
-
-			//copy files to temp
-			fs.copyFile('./zion-builder.php', './temp/zion-builder.php', (err) => {
-				if (err) {
-					error(err)
-				}
-				else {
-					info("files copied");
-				}
-
-			});
-
-			//copy files to temp
-			fs.copyFile('./manifest.json', './temp/manifest.json', (err) => {
-				if (err) {
-					error(err)
-				}
-				else {
-					info("files copied");
-				}
-
-			});
-
-			//copy files to temp
-			fs.copyFile('./zionbuilder.config.js', './temp/zionbuilder.config.js', (err) => {
-				if (err) {
-					error(err)
-				}
-				else {
-					info("files copied");
-				}
-
-			});
-
-			//copy files to temp
-			fs.copyFile('./.phpcs.xml', './temp/.phpcs.xml', (err) => {
-				if (err) {
-					error(err)
-				}
-				else {
-					info("files copied");
-				}
-
-			});
-
-			//copy files to temp
-			fs.copyFile('./Readme.md', './temp/Readme.md', (err) => {
-				if (err) {
-					error(err)
-				}
-				else {
-					info("files copied");
-				}
-
-			});
-
-			//copy files to temp
-			fs.copyFile('./vendor/autoload.php', './temp/vendor/autoload.php', (err) => {
-				if (err) {
-					error(err)
-				}
-				else {
-					info("files copied");
-				}
+				});
 
 			});
 
@@ -168,11 +67,21 @@ module.exports = (options, args) => {
 				const createZip = function () {
 					info("zip create");
 					// Zip temp folder into the main plugin directory
-					zipFolder.zip('./temp', './zion-builder.zip', (err) => { })
+					zipFolder.zip('./temp', './zion-builder.zip', (err) => {
+						if (err) {
+							console.log('Something went wrong!', err);
+						}
+					}).finally(() => {
+						info("zip done");
+						fse.removeSync('./temp')
+						info('old temp removed')
+					})
 				}
 
-				setTimeout(function () { createZip() }, 3000);
+				setTimeout(function () {
+					createZip()
 
+				}, 3000);
 
 			});
 
