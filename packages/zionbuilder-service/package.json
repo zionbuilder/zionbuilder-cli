@@ -1,6 +1,6 @@
 {
 	"name": "@zionbuilder/zionbuilder-service",
-	"version": "0.3.1",
+	"version": "0.4.0",
 	"description": "> TODO: description",
 	"homepage": "",
 	"main": "index.js",
@@ -15,9 +15,10 @@
 		"@intervolga/optimize-cssnano-plugin": "^1.0.6",
 		"@soda/friendly-errors-webpack-plugin": "^1.7.1",
 		"@vue/component-compiler-utils": "^3.1.2",
-		"@zionbuilder/babel-preset-zionbuilder": "^0.3.0",
+		"@zionbuilder/babel-preset-zionbuilder": "^0.4.0",
 		"autoprefixer": "^9.7.6",
 		"babel-loader": "^8.1.0",
+		"bestzip": "^2.1.5",
 		"browser-sync": "^2.26.7",
 		"browser-sync-webpack-plugin": "^2.2.2",
 		"bundle-stats": "^2.2.0",
@@ -64,8 +65,7 @@
 		"webpack-fix-style-only-entries": "^0.4.0",
 		"webpack-hot-middleware": "^2.25.0",
 		"webpack-merge": "^4.2.2",
-		"wp-pot": "^1.9.2",
-		"bestzip": "^2.1.5"
+		"wp-pot": "^1.9.2"
 	},
 	"publishConfig": {
 		"access": "public"
