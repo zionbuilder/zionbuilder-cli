@@ -13,17 +13,19 @@ module.exports = (options, args) => {
 	const filesForCopy = [
 		...service.options.getOption('zipFiles', []),
 		...[
-		'languages',
-		'assets',
-		'dist',
-		'includes',
-		'vendor/composer',
-		'zion-builder.php',
-		'manifest.json',
-		'Readme.md',
-		'readme.txt',
-		'vendor/autoload.php'
-	];
+			'languages',
+			'assets',
+			'dist',
+			'includes',
+			'vendor/composer',
+			'zion-builder.php',
+			'manifest.json',
+			'Readme.md',
+			'readme.txt',
+			'vendor/autoload.php'
+		]
+	]
+
 
 	function dumpAutoload () {
 		exec("composer dump-autoload --no-dev --optimize", (error, stdout, stderr) => {
