@@ -6,26 +6,8 @@ module.exports = (options, args) => {
 	const wpPot = require('wp-pot')
 	var zip = require('bestzip');
 	const { exec } = require("child_process");
-
+	const path = require('path')
 	const service = process.ZIONBUILDER_SERVICE
-
-	// Prepare files
-	const filesForCopy = [
-		...service.options.getOption('zipFiles', []),
-		...[
-			'languages',
-			'assets',
-			'dist',
-			'includes',
-			'vendor/composer',
-			'zion-builder.php',
-			'manifest.json',
-			'Readme.md',
-			'readme.txt',
-			'vendor/autoload.php'
-		]
-	]
-
 
 	function dumpAutoload () {
 		exec("composer dump-autoload --no-dev --optimize", (error, stdout, stderr) => {
@@ -71,9 +53,35 @@ module.exports = (options, args) => {
 	}
 
 	function createZip() {
+		const cwd = process.cwd()
+		const parentFolder = cwd.split(path.sep).pop()
+
+		// Prepare files
+		const filesForCopy = [
+			...[
+				'languages',
+				'assets',
+				'dist',
+				'includes',
+				'vendor/composer',
+				'zion-builder.php',
+				'manifest.json',
+				'Readme.md',
+				'readme.txt',
+				'vendor/autoload.php'
+			],
+			...service.options.getOption('zipFiles', [])
+		]
+
+		const filesForCopyIncludingFolder = filesForCopy.map((source) => {
+			return `${parentFolder}${path.sep}${source}`
+		})
+
 		zip({
-			source: filesForCopy,
-			destination: './zion-builder.zip'
+			source: filesForCopyIncludingFolder,
+			destination: `${parentFolder}${path.sep}zion-builder.zip`,
+			// Set the cwd to parent directory so we can include the folder name in the archive
+			cwd: path.join(cwd, '..')
 		}).then(function() {
 			done('all done!');
 		}).catch(function(err) {
