@@ -1,13 +1,15 @@
 const path = require('path');
 
 module.exports = {
-    entry: './src/index.js',
+    entry: {
+        ZBVideo: './src/index.js',
+        ZBVideoBg: './src/modules/videoBg.js'
+    },
     output: {
         path: path.resolve(__dirname, 'dist'),
         publicPath: 'dist/',
-        filename: 'video.js',
-        libraryExport: 'default',
-        library: 'ZBVideo',
+        filename: '[name].js',
+        library: '[name]',
         libraryTarget: 'umd',
     },
     devServer: {

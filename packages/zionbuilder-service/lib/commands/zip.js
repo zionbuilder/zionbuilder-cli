@@ -7,8 +7,12 @@ module.exports = (options, args) => {
 	var zip = require('bestzip');
 	const { exec } = require("child_process");
 
+	const service = process.ZIONBUILDER_SERVICE
+
 	// Prepare files
 	const filesForCopy = [
+		...service.options.getOption('zipFiles', []),
+		...[
 		'languages',
 		'assets',
 		'dist',
@@ -17,6 +21,7 @@ module.exports = (options, args) => {
 		'zion-builder.php',
 		'manifest.json',
 		'Readme.md',
+		'readme.txt',
 		'vendor/autoload.php'
 	];
 
