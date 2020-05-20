@@ -57,22 +57,7 @@ module.exports = (options, args) => {
 		const parentFolder = cwd.split(path.sep).pop()
 
 		// Prepare files
-		const filesForCopy = [
-			...[
-				'languages',
-				'assets',
-				'dist',
-				'includes',
-				'vendor/composer',
-				'zion-builder.php',
-				'manifest.json',
-				'Readme.md',
-				'readme.txt',
-				'vendor/autoload.php'
-			],
-			...service.options.getOption('zipFiles', [])
-		]
-
+		const filesForCopy = service.options.getOption('zipFiles', [])
 		const filesForCopyIncludingFolder = filesForCopy.map((source) => {
 			return `${parentFolder}${path.sep}${source}`
 		})
