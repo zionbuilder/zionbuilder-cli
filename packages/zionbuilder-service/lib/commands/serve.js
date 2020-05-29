@@ -114,7 +114,6 @@ module.exports = (options, args) => {
 	return new Promise((resolve, reject) => {
 
 		compiler.hooks.done.tap('vue-cli-service serve', stats => {
-			console.log()
 			info(`  App running at: ${hostForCLI}`)
 		})
 

@@ -1,5 +1,5 @@
 import { youtubeUrlParser, EventBus } from '../../utils'
-import fitVids from 'fitvids'
+import reframe from 'reframe.js'
 
 let YoutubeApiLoadedState = 0
 let vimeoApiLoadedState = 0
@@ -33,7 +33,7 @@ export default class Video {
 
 		if (this.options.responsive) {
 			this.on('video_ready', () => {
-				fitVids()
+				reframe(this.videoContainer)
 			})
 		}
 
@@ -159,9 +159,12 @@ export default class Video {
 			autoplay: this.options.autoplay
 		})
 
-		this.videoContainer = this.player.element
 
-		this.trigger('video_ready')
+		this.player.ready().then(() => {
+			this.videoContainer = this.player.element
+			this.trigger('video_ready')
+		});
+		
 	}
 
 	setupLocal () {

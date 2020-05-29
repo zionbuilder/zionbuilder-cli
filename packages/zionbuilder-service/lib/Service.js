@@ -35,8 +35,8 @@ module.exports = class Service {
 		this.commands = {
 			serve: require('./commands/serve'),
 			build: require('./commands/build'),
-			zip: require('./commands/zip')
-
+			zip: require('./commands/zip'),
+			translate: require('./commands/translate')
 		}
 	}
 

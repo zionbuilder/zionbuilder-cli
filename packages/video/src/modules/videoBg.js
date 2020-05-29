@@ -2,12 +2,6 @@ let videoIndex = 0
 
 export default class ZBVideoBg {
 	constructor (domNode, options = {}) {
-
-		if (typeof ZBVideo === 'undefined') {
-			console.warning('ZBVideoBg requires ZBVideo script!')
-			return
-		}
-
 		this.options = {
 			autoplay: true,
 			muted: true,
@@ -164,3 +158,16 @@ export default class ZBVideoBg {
 		window.removeEventListener('resize', this.onResizeCallback)
 	}
 }
+
+// init video
+jQuery('document').ready(function () {
+	const $videoElements = jQuery('.zbjs_video_background')
+	$videoElements.each((index, el) => {
+		const $el = jQuery(el)
+		const config = el.dataset.zionVideoBackground
+		const options = JSON.parse(config)
+		// eslint-disable-next-line no-new
+		new ZBVideoBg(el, options)
+		$el.zionVideoBackgroundConfig = config
+	})
+})

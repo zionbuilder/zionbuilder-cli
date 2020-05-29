@@ -29,6 +29,7 @@
 		"clean-webpack-plugin": "^3.0.0",
 		"css-loader": "^3.5.3",
 		"cssnano": "^4.1.10",
+		"execa": "^4.0.2",
 		"fibers": "^4.0.3",
 		"file-loader": "^6.0.0",
 		"get-port": "^5.1.1",
@@ -64,8 +65,7 @@
 		"webpack-dev-server": "^3.10.3",
 		"webpack-fix-style-only-entries": "^0.4.0",
 		"webpack-hot-middleware": "^2.25.0",
-		"webpack-merge": "^4.2.2",
-		"wp-pot": "^1.9.2"
+		"webpack-merge": "^4.2.2"
 	},
 	"publishConfig": {
 		"access": "public"
