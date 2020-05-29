@@ -16,7 +16,7 @@ module.exports = (webpackConfig, service) => {
 
     webpackConfig
         .plugin('webpack-fix-style-only-entries')
-            .use(require("webpack-fix-style-only-entries"))
+            .use(require("webpack-fix-style-only-entries"), [{ silent: true }])
 
     let sassLoaderVersion
     try {

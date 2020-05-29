@@ -11,6 +11,7 @@ module.exports = {
         filename: '[name].js',
         library: '[name]',
         libraryTarget: 'umd',
+        libraryExport: 'default'
     },
     devServer: {
         contentBase: 'demo/'
