@@ -189,7 +189,6 @@ module.exports = class Service {
 
 		fs.writeFile(outputFilePath, JSON.stringify(data), function (err) {
 			if (err) return error(err);
-			console.log()
 			info('Manifest file written!')
 		});
 	}
