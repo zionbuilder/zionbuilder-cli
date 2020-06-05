@@ -21,7 +21,10 @@ module.exports = (options, args) => {
                 domain: config.domain,
                 package: config.package,
                 team: config.team,
-                bugReport: config.bugReport
+				bugReport: config.bugReport,
+				headers: {
+                    "X-Domain": config.domain
+				}
             });
 
             resolve()
