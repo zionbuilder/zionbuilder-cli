@@ -1,6 +1,6 @@
 {
   "name": "@zionbuilder/video",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "dependencies": {
     "reframe.js": "^2.2.8"
   },
