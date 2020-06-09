@@ -8,7 +8,7 @@ module.exports = (options, args) => {
 
     const config = {
         slug: name,
-        packageName: titleCase( name.replace("-", " ") ),
+        packageName: name.replace("-", " "),
         reportBugsUrl: '',
         team: '',
         ...service.options.getOption('l10n')
