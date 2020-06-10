@@ -55,7 +55,6 @@
 		"webpack-chain": "^6.4.0",
 		"webpack-dev-middleware": "^3.7.2",
 		"webpack-dev-server": "^3.10.3",
-		"webpack-fix-style-only-entries": "^0.5.0",
 		"webpack-hot-middleware": "^2.25.0",
 		"webpack-merge": "^4.2.2",
 		"wp-pot": "^1.9.3"

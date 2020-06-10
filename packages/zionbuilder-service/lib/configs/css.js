@@ -14,10 +14,6 @@ module.exports = (webpackConfig, service) => {
     const shadowMode = !!process.env.ZIONBUILDER_CLI_CSS_SHADOW_MODE
     const isProd = process.env.NODE_ENV === 'production'
 
-    webpackConfig
-        .plugin('webpack-fix-style-only-entries')
-            .use(require("webpack-fix-style-only-entries"), [{ silent: true }])
-
     let sassLoaderVersion
     try {
       sassLoaderVersion = semver.major(require('sass-loader/package.json').version)
