@@ -173,6 +173,18 @@ module.exports = (webpackConfig, service) => {
               }]
             )
 
+    webpackConfig.externals([
+      function( context, request, callback ){
+        if (/^@zb\/.*$/.test(request)){
+          const modules = request.replace('@', '').split('/')
+          // Externalize to a commonjs module using the request path
+          return callback(null, modules, 'root');
+        }
+
+        callback()
+      }
+    ])
+
     webpackConfig
         .plugin('case-sensitive-paths')
             .use(require('case-sensitive-paths-webpack-plugin'))
