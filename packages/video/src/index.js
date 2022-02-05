@@ -163,14 +163,6 @@ export default class Video {
 			controls: this.options.controls
 		})
 
-		console.log({
-			id: this.options.vimeoURL,
-			background: true,
-			muted: this.options.muted,
-			transparent: true,
-			autoplay: this.options.autoplay
-		});
-
 		this.player.ready().then(() => {
 			this.videoContainer = this.player.element
 			this.trigger('video_ready')
