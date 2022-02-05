@@ -1,7 +1,7 @@
 let videoIndex = 0
 
 export default class ZBVideoBg {
-	constructor (domNode, options = {}) {
+	constructor(domNode, options = {}) {
 		this.options = {
 			autoplay: true,
 			muted: true,
@@ -26,7 +26,8 @@ export default class ZBVideoBg {
 		// Setup video
 		this.videoInstance = new ZBVideo(videoContainer, {
 			...this.options,
-			controls: false
+			controls: false,
+			background: true
 		})
 
 		// Attach video ready actions
@@ -34,7 +35,7 @@ export default class ZBVideoBg {
 		this.videoContainer = this.domNode.appendChild(videoContainer)
 	}
 
-	onVideoReady () {
+	onVideoReady() {
 		// Set playing state
 		if (this.options.autoplay) {
 			this.playing = true
@@ -60,15 +61,18 @@ export default class ZBVideoBg {
 		}
 	}
 
-	initResizer () {
+	initResizer() {
 		window.addEventListener('resize', this.onResizeCallback)
 		// Set initial size
 		this.onWindowResize()
 	}
 
-	onWindowResize () {
+	onWindowResize() {
 		const aspectRatio = 1.78
-		const { width, height } = this.domNode.getBoundingClientRect()
+		const {
+			width,
+			height
+		} = this.domNode.getBoundingClientRect()
 		let newWidth, newHeight
 
 		if (width === height) {
@@ -89,7 +93,7 @@ export default class ZBVideoBg {
 		videoContainer.style.height = `${newHeight}px`
 	}
 
-	getControlsHTML () {
+	getControlsHTML() {
 		const videoControlsWrapper = document.createElement('div')
 		videoControlsWrapper.className = 'hg-video-bg__controls'
 		videoControlsWrapper.dataset.position = this.options.controlsPosition
@@ -110,18 +114,18 @@ export default class ZBVideoBg {
 		return videoControlsWrapper
 	}
 
-	play () {
+	play() {
 		this.videoInstance.play()
 		this.playing = true
 		this.domNode.classList.add('hg-video-bg--playing')
 	}
-	pause () {
+	pause() {
 		this.videoInstance.pause()
 		this.playing = false
 		this.domNode.classList.remove('hg-video-bg--playing')
 	}
 
-	togglePlay () {
+	togglePlay() {
 		if (this.playing) {
 			this.pause()
 		} else {
@@ -129,19 +133,19 @@ export default class ZBVideoBg {
 		}
 	}
 
-	mute () {
+	mute() {
 		this.videoInstance.mute()
 		this.muted = true
 		this.domNode.classList.add('hg-video-bg--muted')
 	}
 
-	unMute () {
+	unMute() {
 		this.videoInstance.unMute()
 		this.muted = false
 		this.domNode.classList.remove('hg-video-bg--muted')
 	}
 
-	toggleMute () {
+	toggleMute() {
 		if (this.muted) {
 			this.unMute()
 		} else {
@@ -149,7 +153,7 @@ export default class ZBVideoBg {
 		}
 	}
 
-	destroy () {
+	destroy() {
 		this.videoInstance = null
 		while (this.domNode.firstChild) {
 			this.domNode.removeChild(this.domNode.firstChild)
